@@ -7,52 +7,62 @@ import { CursorHearts } from "./CursorHearts";
 import { CutePopups } from "./CutePopups";
 import { MusicPlayer } from "./MusicPlayer";
 import { Confetti } from "./Confetti";
-import { NameSlide } from "./slides/NameSlide";
-import { AboutHerSlide } from "./slides/AboutHerSlide";
-import { MemoriesGallerySlide } from "./slides/MemoriesGallerySlide";
-import { ReasonsILikeYouSlide } from "./slides/ReasonsILikeYouSlide";
-import { LoveLetterSlideNew } from "./slides/LoveLetterSlideNew";
-import { FutureDreamsSlide } from "./slides/FutureDreamsSlide";
-import { SurpriseSlide } from "./slides/SurpriseSlide";
-import { FinalProposalSlide } from "./slides/FinalProposalSlide";
-import { CountdownSlide } from "./slides/CountdownSlide";
-import { CelebrationSlide } from "./slides/CelebrationSlide";
+import { LoadingScreen } from "./LoadingScreen";
+import { RosePetalTransition } from "./RosePetalTransition";
+import { Slide1Introduction } from "./slides/Slide1Introduction";
+import { Slide2Warning } from "./slides/Slide2Warning";
+import { Slide3FunnyFullForm } from "./slides/Slide3FunnyFullForm";
+import { Slide4GoodFullForm } from "./slides/Slide4GoodFullForm";
+import { Slide5Poetry } from "./slides/Slide5Poetry";
+import { Slide6Reasons } from "./slides/Slide6Reasons";
+import { Slide7Letter } from "./slides/Slide7Letter";
+import { Slide8Gift } from "./slides/Slide8Gift";
+import { Slide9ValentineYes } from "./slides/Slide9ValentineYes";
+import { Slide10UnexpectedLine } from "./slides/Slide10UnexpectedLine";
+import { Slide11ValentineNo } from "./slides/Slide11ValentineNo";
+import { Slide12Countdown } from "./slides/Slide12Countdown";
+import { Slide13Final } from "./slides/Slide13Final";
 
 export const ValentineApp = () => {
+  const [loading, setLoading] = useState(true);
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [saidYes, setSaidYes] = useState(false);
-  const [showYesConfetti, setShowYesConfetti] = useState(false);
+  const [showFinalConfetti, setShowFinalConfetti] = useState(false);
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
 
-  const totalSlides = saidYes ? 10 : 9;
-  const minSwipeDistance = 50;
-
-  function handleYes() {
-    setSaidYes(true);
-    setShowYesConfetti(true);
+  const handleYes = () => {
+    setShowFinalConfetti(true);
     setTimeout(() => {
-      setCurrentSlide(9);
-      setShowYesConfetti(false);
+      setCurrentSlide(12); // Go to final slide
+      setShowFinalConfetti(false);
     }, 1500);
-  }
+  };
 
   const slides = [
-    <NameSlide key="name" />,
-    <AboutHerSlide key="about" />,
-    <MemoriesGallerySlide key="memories" />,
-    <ReasonsILikeYouSlide key="reasons" />,
-    <LoveLetterSlideNew key="letter" />,
-    <FutureDreamsSlide key="future" />,
-    <SurpriseSlide key="surprise" />,
-    <CountdownSlide key="countdown" />,
-    <FinalProposalSlide key="proposal" onYes={handleYes} />,
-    ...(saidYes ? [<CelebrationSlide key="celebration" />] : []),
+    <Slide1Introduction key="intro" />,
+    <Slide2Warning key="warning" />,
+    <Slide3FunnyFullForm key="funny" />,
+    <Slide4GoodFullForm key="good" />,
+    <Slide5Poetry key="poetry" />,
+    <Slide6Reasons key="reasons" />,
+    <Slide7Letter key="letter" />,
+    <Slide8Gift key="gift" />,
+    <Slide9ValentineYes key="valentine-yes" />,
+    <Slide10UnexpectedLine key="unexpected" />,
+    <Slide11ValentineNo key="valentine-no" onYes={handleYes} />,
+    <Slide12Countdown key="countdown" />,
+    <Slide13Final key="final" />,
   ];
 
-  const goToSlide = useCallback((index: number) => {
-    if (index >= 0 && index < totalSlides) setCurrentSlide(index);
-  }, [totalSlides]);
+  const totalSlides = slides.length;
+  const minSwipeDistance = 50;
+
+  const goToSlide = useCallback(
+    (index: number) => {
+      if (index >= 0 && index < totalSlides) setCurrentSlide(index);
+    },
+    [totalSlides]
+  );
 
   const nextSlide = useCallback(() => goToSlide(currentSlide + 1), [currentSlide, goToSlide]);
   const prevSlide = useCallback(() => goToSlide(currentSlide - 1), [currentSlide, goToSlide]);
@@ -78,6 +88,14 @@ export const ValentineApp = () => {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [nextSlide, prevSlide]);
 
+  if (loading) {
+    return (
+      <AnimatePresence>
+        <LoadingScreen onComplete={() => setLoading(false)} />
+      </AnimatePresence>
+    );
+  }
+
   return (
     <div
       className="relative min-h-screen overflow-hidden bg-background"
@@ -89,7 +107,8 @@ export const ValentineApp = () => {
       <div
         className="fixed inset-0 pointer-events-none"
         style={{
-          background: "linear-gradient(180deg, hsl(350, 100%, 97%) 0%, hsl(340, 70%, 94%) 50%, hsl(350, 100%, 96%) 100%)",
+          background:
+            "linear-gradient(180deg, hsl(350, 100%, 97%) 0%, hsl(340, 70%, 94%) 50%, hsl(350, 100%, 96%) 100%)",
         }}
       />
 
@@ -99,7 +118,8 @@ export const ValentineApp = () => {
       <MusicPlayer />
       <CutePopups />
 
-      {showYesConfetti && <Confetti />}
+      {showFinalConfetti && <Confetti />}
+      <RosePetalTransition trigger={currentSlide} />
 
       {/* Main content */}
       <div className="relative z-10">
@@ -117,7 +137,7 @@ export const ValentineApp = () => {
       </div>
 
       {/* Navigation dots */}
-      <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-20 flex items-center gap-3">
+      <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2">
         {[...Array(totalSlides)].map((_, i) => (
           <button
             key={i}
@@ -126,7 +146,7 @@ export const ValentineApp = () => {
             aria-label={`Go to slide ${i + 1}`}
           >
             <motion.div
-              className={`w-3 h-3 rounded-full transition-all duration-300 ${
+              className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
                 currentSlide === i
                   ? "bg-primary shadow-glow"
                   : "bg-primary/30 group-hover:bg-primary/50"
@@ -174,9 +194,13 @@ export const ValentineApp = () => {
           transition={{ delay: 3 }}
           className="fixed bottom-20 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2 text-muted-foreground font-body text-sm md:hidden"
         >
-          <motion.span animate={{ x: [-5, 5, -5] }} transition={{ duration: 1.5, repeat: Infinity }}>←</motion.span>
+          <motion.span animate={{ x: [-5, 5, -5] }} transition={{ duration: 1.5, repeat: Infinity }}>
+            ←
+          </motion.span>
           <span>Swipe to explore</span>
-          <motion.span animate={{ x: [5, -5, 5] }} transition={{ duration: 1.5, repeat: Infinity }}>→</motion.span>
+          <motion.span animate={{ x: [5, -5, 5] }} transition={{ duration: 1.5, repeat: Infinity }}>
+            →
+          </motion.span>
         </motion.div>
       )}
 
